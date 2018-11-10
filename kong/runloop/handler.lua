@@ -293,20 +293,9 @@ return {
 
       -- initialize local local_events hooks
       local db             = singletons.db
-      local dao            = singletons.dao
       local cache          = singletons.cache
       local worker_events  = singletons.worker_events
       local cluster_events = singletons.cluster_events
-
-
-      -- get a cache key using either the old or new DAO
-      local function get_cache_key(data, entity)
-        if data.schema.table then
-          return dao[data.schema.table]:entity_cache_key(entity)
-        else
-          return db[data.schema.name]:cache_key(entity)
-        end
-      end
 
 
       -- events dispatcher
@@ -326,7 +315,7 @@ return {
         -- invalidate this entity anywhere it is cached if it has a
         -- caching key
 
-        local cache_key = get_cache_key(data, data.entity)
+        local cache_key = db[data.schema.name]:cache_key(data.entity)
 
         if cache_key then
           cache:invalidate(cache_key)
@@ -336,7 +325,7 @@ return {
         -- we need to invalidate the previous entity as well
 
         if data.old_entity then
-          cache_key = get_cache_key(data, data.old_entity)
+          cache_key = db[data.schema.name]:cache_key(data.old_entity)
           if cache_key then
             cache:invalidate(cache_key)
           end
