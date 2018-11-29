@@ -131,12 +131,12 @@ qq{
                 admin_api     = true,
             }, {
                 method        = "exit",
-                args          = { 200, "Hello, world" },
+                args          = { 200 },
                 init_worker   = false,
                 certificate   = "pending",
                 rewrite       = true,
                 access        = true,
-                header_filter = false,
+                header_filter = "forced false",
                 body_filter   = false,
                 log           = false,
                 admin_api     = true,
@@ -215,7 +215,19 @@ qq{
         phase_check_data = {
             {
                 method        = "exit",
-                args          = { 200, { message = "Hello" } },
+                args          = { 200 },
+                init_worker   = false,
+                certificate   = "pending",
+                rewrite       = true,
+                access        = true,
+                header_filter = "forced false",
+                body_filter   = false,
+                log           = false,
+                admin_api     = true,
+            },
+            {
+                method        = "exit",
+                args          = { 200, "hello" },
                 init_worker   = false,
                 certificate   = "pending",
                 rewrite       = true,
@@ -225,6 +237,7 @@ qq{
                 log           = false,
                 admin_api     = true,
             },
+
         }
 
         phase_check_functions(phases.init_worker, true)
