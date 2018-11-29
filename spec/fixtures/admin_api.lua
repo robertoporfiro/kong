@@ -14,41 +14,28 @@ local function api_send(method, path, body, forced_port)
     body = body,
   })
   if not res then
+    api_client:close()
     return nil, err
   end
-  local resbody = res.status ~= 204 and res:read_body()
-  api_client:close()
+
   if res.status == 204 then
+    api_client:close()
     return nil
-  elseif res.status < 300 then
-    return cjson.decode(resbody)
-  else
-    return nil, "Error " .. tostring(res.status) .. ": " .. resbody
   end
+
+  local resbody = res:read_body()
+  api_client:close()
+  if res.status < 300 then
+    return cjson.decode(resbody)
+  end
+
+  return nil, "Error " .. tostring(res.status) .. ": " .. resbody
 end
-
-
-local entities = {
-  "snis",
-  "certificates",
-  "upstreams",
-  "consumers",
-  "targets",
-  "plugins",
-  "routes",
-  "services",
-  "jwt_secrets",
-  "oauth2_credentials",
-  "oauth2_tokens",
-  "oauth2_authorization_codes",
-  "keyauth_credentials",
-  "hmacauth_credentials",
-}
 
 
 local admin_api_as_db = {}
 
-for _, name in ipairs(entities) do
+for name, _ in pairs(helpers.db.daos) do
   admin_api_as_db[name] = {
     insert = function(_, tbl)
       return api_send("POST", "/" .. name, tbl)
